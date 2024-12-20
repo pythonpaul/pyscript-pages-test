@@ -3,6 +3,7 @@ from pyweb import pydom
 from pyodide.http import open_url
 from pyscript import display
 from js import console
+from js import window, document  # Import the `window` object from the `js` module
 
 title = "Pandas (and basic DOM manipulation)"
 page_message = "This example loads a remote CSV file into a Pandas dataframe, and displays it."
@@ -56,30 +57,47 @@ def loadFromURL(event):
     pydom["div#pandas-dev-console"].style["display"] = "block"
 
     display(df, target="pandas-output-inner", append="False")
-
 def loadFromFile(event):
     pydom["div#pandas-output-inner"].html = ""
-    file_input = pydom["#file-input"][0]
-    
-    if not file_input.files:
+
+    # Access the file input element using JavaScript
+    file_input = document.getElementById("file-input")
+
+    # Check if files are selected
+    if file_input.files.length == 0:
         log("No file selected.")
         return
-    
-    # Read the file as a CSV
-    file = file_input.files[0]
-    log(f"Loading file: {file.name}")
-    
+
+    # Access the first file using `.item(0)`
+    file = file_input.files.item(0)
+    log(f"Selected file: {file.name}")
+
     try:
-        # Read the file content
-        content = file.read().decode('utf-8')
-        df = pd.read_csv(pd.compat.StringIO(content))
-        
-        # Display the dataframe
-        pydom["div#pandas-output"].style["display"] = "block"
-        pydom["div#pandas-dev-console"].style["display"] = "block"
-        display(df, target="pandas-output-inner", append="False")
+        # Create a FileReader instance
+        file_reader = window.FileReader.new()
+
+        # Define the onload event handler
+        def onload(event):
+            content = event.target.result  # File content as a string
+            try:
+                from io import StringIO
+                df = pd.read_csv(StringIO(content))  # Convert CSV content into pandas DataFrame
+
+                # Display the DataFrame
+                pydom["div#pandas-output"].style["display"] = "block"
+                pydom["div#pandas-dev-console"].style["display"] = "block"
+                display(df, target="pandas-output-inner", append=False)
+            except Exception as e:
+                log(f"Error parsing CSV: {e}")
+
+        # Attach the onload event to FileReader
+        file_reader.onload = onload
+
+        # Start reading the file as text
+        file_reader.readAsText(file)
     except Exception as e:
-        log(f"Error loading file: {e}")
+        log(f"Error reading file: {e}")
+
 
 # Attach the updateURL function to the dropdown change event
 pydom["select#client-selector"].on("change", updateURL)
