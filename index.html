@@ -1,20 +1,14 @@
 <!doctype html>
-
 <html>
     <head>
-        <!-- Recommended meta tags -->
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
         <!-- PyScript CSS -->
         <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
-        <!-- CSS for examples -->
         <link rel="stylesheet" href="./assets/css/examples.css" />
 
-        <!-- This script tag bootstraps PyScript -->
         <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
-
-        <!-- for splashscreen -->
         <style>
             #loading { outline: none; border: none; background: transparent }
         </style>
@@ -39,33 +33,56 @@
                 <a href="/">
                     <img src="./assets/logo.png" class="logo" />
                 </a>
-
-                <!-- will be set via PyDom -->
                 <a class="title" id="page-title" href="" style="color: #f0ab3c"></a>
             </div>
         </nav>
 
         <br />
-        
-        <!-- will be set via PyDom -->
+
         <div id="page-message"></div>
-        
+
+        <!-- Dropdown for Client Selection -->
         <div id="client-dropdown">
-            <!-- Dropdown will be injected here dynamically by PyScript -->
+            <select id="client-selector">
+                <!-- Dropdown options will be populated dynamically by PyScript -->
+                <option value="flounders">Flounders</option>
+                <option value="biocell">Biocell</option>
+            </select>
+        </div>
+
+        <!--file_input_html = "<input type='file' id='file-input' accept='.csv'><button id='btn-load'>Load Local File</button>"-->
+        <div id="pandas-source">
+            <h3>Data Source: Local File Upload</h3>
+            <!-- Input for URL -->
+            <input type="file" id="file-input" class="py-input" size="70" />
+            <!-- Button to trigger DataFrame loading -->
+            <button
+                type="submit"
+                id="btn-csv-load"
+                class="py-button"
+                py-click="loadFromFile"
+            >
+                Display Dataframe from URL
+            </button>
         </div>
 
         <div id="pandas-source">
-            <h3>Data Source</h3>
+            <h3>Data Source: URL</h3>
+            <!-- Input for URL -->
             <input type="text" id="txt-url" class="py-input" size="70" />
+            <!-- Button to trigger DataFrame loading -->
             <button
                 type="submit"
-                id="btn-load"
+                id="btn-url-load"
                 class="py-button"
                 py-click="loadFromURL"
             >
                 Display Dataframe from URL
             </button>
         </div>
+
+        <!-- File input dynamically populated via PyDom -->
+        <div id="file-input-container"></div>
 
         <div id="pandas-output" hidden>
             <h3>Output</h3>
@@ -80,6 +97,5 @@
         <section class="pyscript">
             <script type="py" src="./main.py" config="./pyscript.toml"></script>
         </section>
-
     </body>
 </html>
