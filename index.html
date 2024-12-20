@@ -50,6 +50,10 @@
         <!-- will be set via PyDom -->
         <div id="page-message"></div>
 
+        <div id="dropdown-container">
+            <!-- Dropdown will be injected here dynamically by PyScript -->
+        </div>
+
         <div id="pandas-source">
             <h3>Data Source</h3>
             <input type="text" id="txt-url" class="py-input" size="70" />
@@ -59,7 +63,7 @@
                 class="py-button"
                 py-click="loadFromURL"
             >
-                Load CSV
+                Load Excel
             </button>
         </div>
 
