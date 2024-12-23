@@ -234,7 +234,7 @@ def loop():
         # # Rename the tsv file to FOUNDERS.tsv based on Anitha's request
 
 loop()
-# import datetime as dt
+# import datetime as dtv
 
 # from scheduler import Scheduler
 # from scheduler.trigger import Monday, Tuesday, Wednesday, Thursday, Friday

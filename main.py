@@ -11,6 +11,7 @@ client_urls = {
     "Flounders": "https://raw.githubusercontent.com/datasets/airport-codes/master/data/airport-codes.csv",
     "Biocell": "https://people.sc.fsu.edu/~jburkardt/data/csv/hw_200.csv"
 }
+
 default_url = client_urls["Flounders"]
 
 pydom["title#header-title"].html = title
@@ -38,13 +39,33 @@ def updateURL(event):
     selected_client = pydom["select#client-selector"].value
     console.log(f"Selected client: {selected_client}")
     if selected_client == "flounders":
+        print("founders dropdown selected")
         pydom["input#txt-url"][0].value = client_urls["Flounders"]
+
     elif selected_client == "biocell":
         pydom["input#txt-url"][0].value = client_urls["Biocell"]
 
 def loadFromURL(event):
+
     pydom["div#pandas-output-inner"].html = ""
-    url = pydom["input#txt-url"][0].value
+    selected_client = pydom["select#client-selector"].value
+
+    if selected_client == "flounders":
+        
+        print("founders dropdown selected")
+        url = pydom["input#txt-url"][0].value
+        pydom["input#txt-url"][0].value = "Flounders url"
+
+        # url = client_urls["Flounders"]
+
+    elif selected_client == "biocell":
+        url = pydom["input#txt-url"][0].value
+        pydom["input#txt-url"][0].value = "biocell url"
+        # url = client_urls["Biocell"]
+        
+    else: 
+        pydom["input#txt-url"][0].value = "Flounders url"
+        url = pydom["input#txt-url"][0].value
 
     log(f"Trying to fetch CSV from {url}")
     df = pd.read_csv(open_url(url))
