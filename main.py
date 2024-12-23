@@ -57,6 +57,7 @@ def loadFromURL(event):
     pydom["div#pandas-dev-console"].style["display"] = "block"
 
     display(df, target="pandas-output-inner", append="False")
+
 def loadFromFile(event):
     pydom["div#pandas-output-inner"].html = ""
 
@@ -82,7 +83,7 @@ def loadFromFile(event):
             try:
                 from io import StringIO
                 df = pd.read_csv(StringIO(content))  # Convert CSV content into pandas DataFrame
-
+                
                 # Display the DataFrame
                 pydom["div#pandas-output"].style["display"] = "block"
                 pydom["div#pandas-dev-console"].style["display"] = "block"
