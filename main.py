@@ -103,14 +103,11 @@ def loadFromFile(event):
             content = event.target.result  # File content as a string
             try:
                 from io import StringIO
-                df = pd.read_csv(StringIO(content))  # Convert CSV content into pandas DataFrame
-                
+                # df = pd.read_csv(StringIO(content))  # Convert CSV content into pandas DataFrame
 
                 if selected_client == "flounders":
                     print("parsing founders")
-                    # url = pydom["input#txt-url"][0].value
-                    # pydom["input#txt-url"][0].value = "Flounders url"
-                    df = founders_web.parse_csv(df)
+                    df = founders_web.loop(content)
 
                 # Display the DataFrame
                 pydom["div#pandas-output"].style["display"] = "block"

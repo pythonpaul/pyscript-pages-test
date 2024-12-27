@@ -172,26 +172,12 @@ def final_address(value):
     
 import os
 
-def loop():
+def loop(content):
     final_dict = []
-    # directory = 'raw_data/FOUNDERS/'
-
-    # # replace with any file name named Placement
-    # placement_file_names = [os.path.join(directory, f) for f in os.listdir(directory) if f.startswith('Placement')]
-        
-    # # Create a new directory named after today's date in the format dd-mm-yy
-    # today_date = datetime.now().strftime('%m-%d-%y')
-    # new_directory = os.path.join(directory, today_date)
-    # os.makedirs(new_directory, exist_ok=True)
     
-
-    # for file_name in placement_file_names:
-    #     with open(f'{file_name}', 'r') as file:
-    #         for line in file:
-    #             print(line)
-    #             final_dict.append(parse_line(line))
-
+    final_dict = [parse_line(line) for line in content.splitlines()]
     df = pd.DataFrame(final_dict)
+
     df['A15'] = df['A15'].apply(reformat_A15)
     df = df[df['A15'].astype(float) >= 50.00]
     df['A2.1'] = df['A2.1'].apply(reformat_names)
@@ -222,9 +208,10 @@ def loop():
     #address dataframe: merge at end
     # addr_df = df.apply(lambda x: reformat_address(x['A3.1']), result_type='expand')
     df = df.rename(columns={'M1': 'M', 'M2': 'M'})
-    df.to_csv(f'{file_name}.csv', index=False)
-    df = pd.DataFrame()
-    final_dict = []
+    # df.to_csv(f'{file_name}.csv', index=False)
+  
+    # df = pd.DataFrame()
+    # final_dict = []
 
     # Move the placement files into the new directory
 
