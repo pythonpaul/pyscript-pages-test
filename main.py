@@ -4,6 +4,7 @@ from pyodide.http import open_url
 from pyscript import display
 from js import console
 from js import window, document  # Import the `window` object from the `js` module
+import founders_web
 
 title = "Pandas (and basic DOM manipulation)"
 page_message = "This example loads a remote CSV file into a Pandas dataframe, and displays it."
@@ -46,12 +47,10 @@ def updateURL(event):
         pydom["input#txt-url"][0].value = client_urls["Biocell"]
 
 def loadFromURL(event):
-
     pydom["div#pandas-output-inner"].html = ""
     selected_client = pydom["select#client-selector"].value
 
     if selected_client == "flounders":
-        
         print("founders dropdown selected")
         url = pydom["input#txt-url"][0].value
         pydom["input#txt-url"][0].value = "Flounders url"
@@ -81,6 +80,7 @@ def loadFromURL(event):
 
 def loadFromFile(event):
     pydom["div#pandas-output-inner"].html = ""
+    selected_client = pydom["select#client-selector"].value
 
     # Access the file input element using JavaScript
     file_input = document.getElementById("file-input")
@@ -105,6 +105,13 @@ def loadFromFile(event):
                 from io import StringIO
                 df = pd.read_csv(StringIO(content))  # Convert CSV content into pandas DataFrame
                 
+
+                if selected_client == "flounders":
+                    print("parsing founders")
+                    # url = pydom["input#txt-url"][0].value
+                    # pydom["input#txt-url"][0].value = "Flounders url"
+                    df = founders_web.parse_csv(df)
+
                 # Display the DataFrame
                 pydom["div#pandas-output"].style["display"] = "block"
                 pydom["div#pandas-dev-console"].style["display"] = "block"

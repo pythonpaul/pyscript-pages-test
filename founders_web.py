@@ -17,6 +17,18 @@ import dynamic_tsv
 from io import StringIO
 from js import document, window
 
+# Create a Blob and trigger download
+# blob = window.Blob.new([csv_content], {"type": "text/csv"})
+# url = window.URL.createObjectURL(blob)
+# link = document.createElement("a")
+# link.href = url
+# link.download = "data.csv"
+# document.body.appendChild(link)
+# link.click()
+# document.body.removeChild(link)
+# window.URL.revokeObjectURL(url)
+
+
 def parse_line(line):
     print(line)
     input_string = re.sub(r'\s+', ' ', line)
@@ -157,117 +169,88 @@ def final_address(value):
         return ' '.join(value.split()[:-3])
     except KeyError:
         return None
+    
 import os
+
 def loop():
     final_dict = []
-    directory = 'raw_data/FOUNDERS/'
+    # directory = 'raw_data/FOUNDERS/'
 
-    # replace with any file name named Placement
-    placement_file_names = [os.path.join(directory, f) for f in os.listdir(directory) if f.startswith('Placement')]
+    # # replace with any file name named Placement
+    # placement_file_names = [os.path.join(directory, f) for f in os.listdir(directory) if f.startswith('Placement')]
         
-    # Create a new directory named after today's date in the format dd-mm-yy
-    today_date = datetime.now().strftime('%m-%d-%y')
-    new_directory = os.path.join(directory, today_date)
-    os.makedirs(new_directory, exist_ok=True)
+    # # Create a new directory named after today's date in the format dd-mm-yy
+    # today_date = datetime.now().strftime('%m-%d-%y')
+    # new_directory = os.path.join(directory, today_date)
+    # os.makedirs(new_directory, exist_ok=True)
     
 
-    for file_name in placement_file_names:
-        with open(f'{file_name}', 'r') as file:
-            for line in file:
-                print(line)
-                final_dict.append(parse_line(line))
-        df = pd.DataFrame(final_dict)
-        df['A15'] = df['A15'].apply(reformat_A15)
-        df = df[df['A15'].astype(float) >= 50.00]
-        df['A2.1'] = df['A2.1'].apply(reformat_names)
-        df['A8'] = df['A8'].apply(reformat_A8)
-        # format address first time
-        df['A3.1'] = df['A3.1'].apply(reformat_address)
-        df['A4'] = df['A3.1'].apply(city)
-        df['A5'] = df['A3.1'].apply(state)
-        df['A6'] = df['A3.1'].apply(zip_code)
-        # format address second time
-        df['A3.1'] = df['A3.1'].apply(final_address)
-        df['F286'] = 'CHARGE OFF DATE'
-        
-        # F287: principal amount, 99% of time. maybe interest barren, or fees.
-        # if that's case, populate F288 (interest), F289 (fees)
-        # F290 subsequent charges
-        df['F287'] = df['A15']
-        df['F288'] = 0.0
-        df['F289'] = 0.0
-        df['F290'] = 0.0
-        
-        # put A15 after A12
-        df.insert(loc=3, column='A4', value=df.pop('A4'))
-        df.insert(loc=4, column='A5', value=df.pop('A5'))
-        df.insert(loc=5, column='A6', value=df.pop('A6'))
-        df.insert(loc=8, column='A15', value=df.pop('A15'))
-        df.insert(loc=9, column='F286', value=df.pop('F286'))
-        #address dataframe: merge at end
-        # addr_df = df.apply(lambda x: reformat_address(x['A3.1']), result_type='expand')
-        df = df.rename(columns={'M1': 'M', 'M2': 'M'})
-        df.to_csv(f'{file_name}.csv', index=False)
-        df = pd.DataFrame()
-        final_dict = []
- 
-     # Move the placement files into the new directory
+    # for file_name in placement_file_names:
+    #     with open(f'{file_name}', 'r') as file:
+    #         for line in file:
+    #             print(line)
+    #             final_dict.append(parse_line(line))
 
-    placement_file_names = [name + '.csv' for name in placement_file_names]
+    df = pd.DataFrame(final_dict)
+    df['A15'] = df['A15'].apply(reformat_A15)
+    df = df[df['A15'].astype(float) >= 50.00]
+    df['A2.1'] = df['A2.1'].apply(reformat_names)
+    df['A8'] = df['A8'].apply(reformat_A8)
+    # format address first time
+    df['A3.1'] = df['A3.1'].apply(reformat_address)
+    df['A4'] = df['A3.1'].apply(city)
+    df['A5'] = df['A3.1'].apply(state)
+    df['A6'] = df['A3.1'].apply(zip_code)
+    # format address second time
+    df['A3.1'] = df['A3.1'].apply(final_address)
+    df['F286'] = 'CHARGE OFF DATE'
+    
+    # F287: principal amount, 99% of time. maybe interest barren, or fees.
+    # if that's case, populate F288 (interest), F289 (fees)
+    # F290 subsequent charges
+    df['F287'] = df['A15']
+    df['F288'] = 0.0
+    df['F289'] = 0.0
+    df['F290'] = 0.0
+    
+    # put A15 after A12
+    df.insert(loc=3, column='A4', value=df.pop('A4'))
+    df.insert(loc=4, column='A5', value=df.pop('A5'))
+    df.insert(loc=5, column='A6', value=df.pop('A6'))
+    df.insert(loc=8, column='A15', value=df.pop('A15'))
+    df.insert(loc=9, column='F286', value=df.pop('F286'))
+    #address dataframe: merge at end
+    # addr_df = df.apply(lambda x: reformat_address(x['A3.1']), result_type='expand')
+    df = df.rename(columns={'M1': 'M', 'M2': 'M'})
+    df.to_csv(f'{file_name}.csv', index=False)
+    df = pd.DataFrame()
+    final_dict = []
 
-    dynamic_tsv.dynamic_tsv(placement_file_names)
+    # Move the placement files into the new directory
+
+    # placement_file_names = [name + '.csv' for name in placement_file_names]
+
+    # dynamic_tsv.dynamic_tsv(placement_file_names)
         
-    for file_name in placement_file_names:
-        original_file_name = file_name.replace('.csv', '')
-        # just get the base tsv file name 
-        tsv_file_name = file_name.replace('.csv', '.tsv')
+    # for file_name in placement_file_names:
+    #     original_file_name = file_name.replace('.csv', '')
+    #     # just get the base tsv file name 
+    #     tsv_file_name = file_name.replace('.csv', '.tsv')
 
-        # # Move the files to the new dated directory
-        # # original raw file
-        # shutil.move(original_file_name, new_directory)
-        # # csv file
-        # shutil.move(file_name, new_directory)
-        # # tsv file
-        # shutil.move(tsv_file_name, new_directory)
+    #     # Move the files to the new dated directory
+    #     # original raw file
+    #     shutil.move(original_file_name, new_directory)
+    #     # csv file
+    #     shutil.move(file_name, new_directory)
+    #     # tsv file
+    #     shutil.move(tsv_file_name, new_directory)
 
-        # # variable for renaming to FOUNDERS.tsv
-        # tsv_file_base_name = os.path.basename(tsv_file_name)
-        # os.rename(os.path.join(new_directory, tsv_file_base_name), os.path.join(new_directory, 'FOUNDERS.tsv'))
+    #     # variable for renaming to FOUNDERS.tsv
+    #     tsv_file_base_name = os.path.basename(tsv_file_name)
+    #     os.rename(os.path.join(new_directory, tsv_file_base_name), os.path.join(new_directory, 'FOUNDERS.tsv'))
         
-        # Create a Blob and trigger download
-        blob = window.Blob.new([csv_content], {"type": "text/csv"})
-        url = window.URL.createObjectURL(blob)
-        link = document.createElement("a")
-        link.href = url
-        link.download = "data.csv"
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        window.URL.revokeObjectURL(url)
- 
+    return df
         
         # # Rename the tsv file to FOUNDERS.tsv based on Anitha's request
 
 loop()
-
-# import datetime as dtv
-
-# from scheduler import Scheduler
-# from scheduler.trigger import Monday, Tuesday, Wednesday, Thursday, Friday
-
-# def foo():
-#     print("foo")
-
-# schedule = Scheduler()
-
-# schedule.daily(dt.time(hour=10), Monday, Tuesday, Wednesday, Thursday, Friday, loop)
-
-# print(schedule)
-# import time
-
-# while True:
-#     schedule.exec_jobs()
-#     time.sleep(1)
-    
-# input_string = "EZOH108809BRITTANY MICHELLE WUCHICH                                   1070 BERWIN ST                AKRON                         OH443100000000003303385397          05/24/2406/24/24AP7395    TRUECUT INSURANCE LLC         3304141150000034.79FI"
-# parse_line(input_string)
