@@ -4,6 +4,9 @@ from pyodide.http import open_url
 from pyscript import display
 from js import console
 from js import window, document  # Import the `window` object from the `js` module
+import sys
+# sys.path.insert(0, '/workspaces/pyscript-pages-test/')
+# sys.path.append('/workspaces/pyscript-pages-test/founders_web.py')
 import founders_web
 
 title = "Pandas (and basic DOM manipulation)"
@@ -103,16 +106,21 @@ def loadFromFile(event):
             content = event.target.result  # File content as a string
             try:
                 from io import StringIO
-                # df = pd.read_csv(StringIO(content))  # Convert CSV content into pandas DataFrame
-
-                if selected_client == "flounders":
-                    print("parsing founders")
-                    df = founders_web.loop(content)
-
+                
+                # if selected_client == "flounders":
+                #     print("parsing founders")
+                #     df = founders_web.loop(content)
+                # else: 
+                #     df = pd.read_csv(StringIO(content))  # Convert CSV content into pandas DataFrame
+                
+                # UNCOMMENT
+                df = pd.read_csv(StringIO(content))  # Convert CSV content into pandas DataFrame
+                # df = founders_web.loop(content)
                 # Display the DataFrame
                 pydom["div#pandas-output"].style["display"] = "block"
                 pydom["div#pandas-dev-console"].style["display"] = "block"
                 display(df, target="pandas-output-inner", append=False)
+
             except Exception as e:
                 log(f"Error parsing CSV: {e}")
 
@@ -123,7 +131,6 @@ def loadFromFile(event):
         file_reader.readAsText(file)
     except Exception as e:
         log(f"Error reading file: {e}")
-
 
 # Attach the updateURL function to the dropdown change event
 pydom["select#client-selector"].on("change", updateURL)
