@@ -2,12 +2,14 @@ import pandas as pd
 from pyweb import pydom
 from pyodide.http import open_url
 from pyscript import display
+import js
 from js import console
 from js import window, document  # Import the `window` object from the `js` module
 import sys
+
 # sys.path.insert(0, '/workspaces/pyscript-pages-test/')
 # sys.path.append('/workspaces/pyscript-pages-test/founders_web.py')
-import founders_web
+# import founders_web
 
 title = "Pandas (and basic DOM manipulation)"
 page_message = "This example loads a remote CSV file into a Pandas dataframe, and displays it."
@@ -39,8 +41,9 @@ def log(message):
     console.log(message)
 
 def updateURL(event):
-    # Update the URL input field based on selected client
+    # selected_client: List data type of length 1  
     selected_client = pydom["select#client-selector"].value
+    
     console.log(f"Selected client: {selected_client}")
     if selected_client == "flounders":
         print("founders dropdown selected")
@@ -53,22 +56,19 @@ def loadFromURL(event):
     pydom["div#pandas-output-inner"].html = ""
     selected_client = pydom["select#client-selector"].value
 
-    if selected_client == "flounders":
-        print("founders dropdown selected")
+    if selected_client[0] == "flounders":
+       
         url = pydom["input#txt-url"][0].value
         pydom["input#txt-url"][0].value = "Flounders url"
 
         # url = client_urls["Flounders"]
 
-    elif selected_client == "biocell":
+    if selected_client[0] == "biocell":
         url = pydom["input#txt-url"][0].value
         pydom["input#txt-url"][0].value = "biocell url"
         # url = client_urls["Biocell"]
         
-    else: 
-        pydom["input#txt-url"][0].value = "Flounders url"
-        url = pydom["input#txt-url"][0].value
-
+    log(f"Selected client: {selected_client}")
     log(f"Trying to fetch CSV from {url}")
     df = pd.read_csv(open_url(url))
 
@@ -81,53 +81,66 @@ def loadFromURL(event):
 
     display(df, target="pandas-output-inner", append="False")
 
+def download_csv(df):
+    import js
+
+    # Convert DataFrame to CSV string
+    csv_string = df.to_csv(index=False)
+
+    # Create a Blob object for the CSV data
+    blob = js.Blob.new([csv_string], { "type": "text/csv" })
+
+    # Create a URL for the Blob
+    url = js.window.URL.createObjectURL(blob)
+
+    # Create a temporary link element
+    link = js.document.createElement("a")
+    link.href = url
+    link.download = "transformed_data.csv"  # File name for download
+
+    # Programmatically click the link to trigger the download
+    js.document.body.appendChild(link)
+    link.click()
+
+    # Remove the temporary link element
+    js.document.body.removeChild(link)
+    js.window.URL.revokeObjectURL(url)
+
 def loadFromFile(event):
     pydom["div#pandas-output-inner"].html = ""
     selected_client = pydom["select#client-selector"].value
 
-    # Access the file input element using JavaScript
-    file_input = document.getElementById("file-input")
+    file_input = js.document.getElementById("file-input")
 
-    # Check if files are selected
     if file_input.files.length == 0:
         log("No file selected.")
         return
 
-    # Access the first file using `.item(0)`
     file = file_input.files.item(0)
     log(f"Selected file: {file.name}")
 
     try:
-        # Create a FileReader instance
-        file_reader = window.FileReader.new()
+        file_reader = js.window.FileReader.new()
 
-        # Define the onload event handler
         def onload(event):
-            content = event.target.result  # File content as a string
+            content = event.target.result
             try:
                 from io import StringIO
+                df = pd.read_csv(StringIO(content))
+                first_col = df.columns[0]
+                df[first_col] = "FOO" + df[first_col].astype(str)
                 
-                # if selected_client == "flounders":
-                #     print("parsing founders")
-                #     df = founders_web.loop(content)
-                # else: 
-                #     df = pd.read_csv(StringIO(content))  # Convert CSV content into pandas DataFrame
-                
-                # UNCOMMENT
-                df = pd.read_csv(StringIO(content))  # Convert CSV content into pandas DataFrame
-                # df = founders_web.loop(content)
-                # Display the DataFrame
                 pydom["div#pandas-output"].style["display"] = "block"
                 pydom["div#pandas-dev-console"].style["display"] = "block"
                 display(df, target="pandas-output-inner", append=False)
 
+                # Show the download button and bind the click event
+                download_csv(df)
+
             except Exception as e:
                 log(f"Error parsing CSV: {e}")
 
-        # Attach the onload event to FileReader
         file_reader.onload = onload
-
-        # Start reading the file as text
         file_reader.readAsText(file)
     except Exception as e:
         log(f"Error reading file: {e}")
