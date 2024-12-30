@@ -13,12 +13,13 @@ import sys
 
 title = "Pandas (and basic DOM manipulation)"
 page_message = "This example loads a remote CSV file into a Pandas dataframe, and displays it."
+
 client_urls = {
-    "Flounders": "https://raw.githubusercontent.com/datasets/airport-codes/master/data/airport-codes.csv",
-    "Biocell": "https://people.sc.fsu.edu/~jburkardt/data/csv/hw_200.csv"
+    "Founders": "https://raw.githubusercontent.com/datasets/airport-codes/master/data/airport-codes.csv",
+    "Cryosell": "https://people.sc.fsu.edu/~jburkardt/data/csv/hw_200.csv"
 }
 
-default_url = client_urls["Flounders"]
+default_url = client_urls["Founders"]
 
 pydom["title#header-title"].html = title
 pydom["a#page-title"].html = title
@@ -43,37 +44,31 @@ def log(message):
 def updateURL(event):
     # selected_client: List data type of length 1  
     selected_client = pydom["select#client-selector"].value
-    
-    console.log(f"Selected client: {selected_client}")
-    if selected_client == "flounders":
-        print("founders dropdown selected")
-        pydom["input#txt-url"][0].value = client_urls["Flounders"]
-
-    elif selected_client == "biocell":
-        pydom["input#txt-url"][0].value = client_urls["Biocell"]
 
 def loadFromURL(event):
     pydom["div#pandas-output-inner"].html = ""
     selected_client = pydom["select#client-selector"].value
 
-    if selected_client[0] == "flounders":
+    if selected_client[0] == "founders":
        
         url = pydom["input#txt-url"][0].value
-        pydom["input#txt-url"][0].value = "Flounders url"
+        pydom["input#txt-url"][0].value = client_urls["Founders"]
 
         # url = client_urls["Flounders"]
 
-    if selected_client[0] == "biocell":
+    if selected_client[0] == "cryosell":
         url = pydom["input#txt-url"][0].value
-        pydom["input#txt-url"][0].value = "biocell url"
+        pydom["input#txt-url"][0].value = client_urls["Cryosell"]
         # url = client_urls["Biocell"]
         
     log(f"Selected client: {selected_client}")
     log(f"Trying to fetch CSV from {url}")
+    
     df = pd.read_csv(open_url(url))
 
     # Manipulate the DataFrame by adding "FOO" as a prefix to the first column
     first_col = df.columns[0]
+    
     df[first_col] = "FOO" + df[first_col].astype(str)
 
     pydom["div#pandas-output"].style["display"] = "block"
@@ -82,7 +77,6 @@ def loadFromURL(event):
     display(df, target="pandas-output-inner", append="False")
 
 def download_csv(df):
-    import js
 
     # Convert DataFrame to CSV string
     csv_string = df.to_csv(index=False)

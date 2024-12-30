@@ -16,18 +16,6 @@ from nameparser import HumanName
 from io import StringIO
 from js import document, window
 
-# Create a Blob and trigger download
-# blob = window.Blob.new([csv_content], {"type": "text/csv"})
-# url = window.URL.createObjectURL(blob)
-# link = document.createElement("a")
-# link.href = url
-# link.download = "data.csv"
-# document.body.appendChild(link)
-# link.click()
-# document.body.removeChild(link)
-# window.URL.revokeObjectURL(url)
-
-
 def parse_line(line):
     print(line)
     input_string = re.sub(r'\s+', ' ', line)
