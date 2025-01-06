@@ -16,6 +16,12 @@ from nameparser import HumanName
 from io import StringIO
 from js import document, window
 
+
+
+import usaddress
+from usaddress import RepeatedLabelError
+from nameparser import HumanName
+
 def parse_line(line):
     print(line)
     input_string = re.sub(r'\s+', ' ', line)
@@ -156,8 +162,6 @@ def final_address(value):
         return ' '.join(value.split()[:-3])
     except KeyError:
         return None
-    
-import os
 
 def loop(content):
     final_dict = []
